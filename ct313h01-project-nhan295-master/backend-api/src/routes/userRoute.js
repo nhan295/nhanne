@@ -145,4 +145,7 @@ module.exports.setup = (app) => {
  */
     router.get('/', userController.userData)
 
+    // Change user password
+    router.put('/changePassword', userController.changePassword)
+
 }

@@ -100,6 +100,33 @@ const userData = (req, res) => {
     res.status(200).json({ user: req.session.user });
 }
 
+// Change password
+const changePassword = async (req, res) => {
+    const userId = req.session.user.user_id;
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (!currentPassword ||!newPassword ||!confirmPassword) {
+        return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    if (newPassword!== confirmPassword) {
+        return res.status(400).json({ message: 'Passwords do not match' });
+    }
+
+    const oldPassword = await userModel.passwordByUserId(userId); // Get old password by user id
+
+    const match = bcrypt.compareSync(currentPassword, oldPassword) // Compare password
+
+    if(match) {
+        const hashedNewPassword = bcrypt.hashSync(newPassword, 10); // Hash password
+        await userModel.changePassword(userId, hashedNewPassword); // Change password
+        
+        res.status(200).json({ message: 'Password changed successfully' });
+    } else {
+        return res.status(401).json({ message: 'Wrong current password' });
+    }
+}
+
 
 
 module.exports = {
@@ -107,6 +134,7 @@ module.exports = {
     signup,
     signin,
     userData,
-    logout
+    logout,
+    changePassword
   
 }
