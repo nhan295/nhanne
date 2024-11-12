@@ -8,19 +8,41 @@
   
         <div class="input-group">
           <i class="fas fa-envelope"></i>
-          <input type="text" v-model="userEmail" />
+          <input type="text" v-model="userEmail" disabled/>
         </div>
   
         <div class="input-group">
           <i class="fas fa-map-marker-alt"></i>
-          <input type="text" v-model="userAddress" />
+          <input type="text" v-model="userAddress" disabled/>
         </div>
   
         <div class="input-group">
           <i class="fas fa-calendar-alt"></i>
-          <input type="text" v-model="userDate" />
+          <input type="text" v-model="userDate" disabled/>
         </div>
       </div>
+
+      <form id="change-password-form" @submit.prevent="changePassword">
+        <div class="user-details">
+          <h2>Change Password</h2>
+    
+          <div class="input-group">
+            <input type="password" placeholder="Current password" v-model="currentPassword"/>
+          </div>
+    
+          <div class="input-group">
+            <input type="password" placeholder="New password" v-model="newPassword"/>
+          </div>
+    
+          <div class="input-group">
+            <input type="password" placeholder="Confirm password" v-model="confirmPassword"/>
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button type="submit">Change Password</button>
+        </div>
+      </form>
     </div>
   </template>
   
@@ -32,6 +54,10 @@
   const userEmail = ref(null);
   const userAddress = ref(null);
   const userDate = ref(null);
+
+  const currentPassword = ref('');
+  const newPassword = ref('');
+  const confirmPassword = ref('');
   
   const getUserData = async () => {
     try {
@@ -51,6 +77,33 @@
       console.error('Failed to fetch user data', error);
     }
   };
+
+  const changePassword = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/v1/users/changePassword", {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          currentPassword: currentPassword.value,
+          newPassword: newPassword.value,
+          confirmPassword: confirmPassword.value,
+        }),
+      });
+
+      console.log(response.json())
+
+      if (response.ok) {
+        alert('Password changed successfully');
+      } else {
+        alert('Failed to change password');
+      }
+    } catch (error) {
+      console.error('Failed to change password', error);
+    }
+  }
   
   onMounted(() => {
     getUserData();
